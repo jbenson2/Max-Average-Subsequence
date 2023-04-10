@@ -6,17 +6,17 @@
 
 using namespace std;
 
-void bruteForce(vector<double> seq, int k, int left, int right, int &startIndex, int &endIndex, double &maxAvg)
+void bruteForce(const vector<double> &seq, int k, int left, int right, int &startIndex, int &endIndex, double &maxAvg)
 {
     double sum = 0;
     double avg = 0;
 
-    for (int i = left; i <= right - k; i++)
+    for (int i = left; i <= right - k + 1; i++)
     {
         sum = 0;
         for (int j = i; j < i + k; j++)
         {
-            sum += seq.at(j);
+            sum += seq[j];
         }
         avg = sum / k;
         if (avg > maxAvg)
@@ -28,85 +28,71 @@ void bruteForce(vector<double> seq, int k, int left, int right, int &startIndex,
     }
 }
 
-void divideAndConquer(vector<double> seq, int k, int left, int right, int &startIndex, int &endIndex, double &maxAvg)
+void divideAndConquer(vector<double> &seq, int k, int left, int right, int &startIndex, int &endIndex, double &maxAvg)
 {
-    int mid;
-    double leftSum;
-    double rightSum;
+    int mid = 0;
+    int leftStartIndex = 0;
+    int leftEndIndex = 0;
+    int rightStartIndex = 0;
+    int rightEndIndex = 0;
+    int crossStartIndex = 0;
+    int crossEndIndex = 0;
+    double leftMaxAvg = 0;
+    double rightMaxAvg = 0;
+    double crossMaxAvg = 0;
+    double sum = 0;
+    double avg = 0;
 
-    if (right - left < k)
+    if ((right - left + 1) < k)
     {
         return;
     }
-    if (right - left == k)
+    if ((right - left) + 1 == k)
     {
         bruteForce(seq, k, left, right, startIndex, endIndex, maxAvg);
-        return;
     }
 
-    mid = (left + right) / 2;
-    divideAndConquer(seq, k, left, mid, startIndex, endIndex, maxAvg);
-    divideAndConquer(seq, k, mid + 1, right, startIndex, endIndex, maxAvg);
+    mid = (right + left) / 2;
+
+    divideAndConquer(seq, k, left, mid, leftStartIndex, leftEndIndex, leftMaxAvg);
+    divideAndConquer(seq, k, mid + 1, right, rightStartIndex, rightEndIndex, rightMaxAvg);
+
+    crossStartIndex = mid;
+    crossEndIndex = mid + k - 1;
+    for (int i = mid; i >= left && i + k - 1 <= right; i--)
+    {
+        sum = 0;
+        for (int j = i; j <= i + k - 1; j++)
+        {
+            sum += seq[j];
+        }
+        avg = sum / k;
+        if (avg > crossMaxAvg)
+        {
+            crossMaxAvg = avg;
+            crossStartIndex = i;
+            crossEndIndex = i + k - 1;
+        }
+    }
+    if (crossMaxAvg > leftMaxAvg && crossMaxAvg > rightMaxAvg)
+    {
+        startIndex = crossStartIndex;
+        endIndex = crossEndIndex;
+        maxAvg = crossMaxAvg;
+    }
+    else if (leftMaxAvg > rightMaxAvg)
+    {
+        startIndex = leftStartIndex;
+        endIndex = leftEndIndex;
+        maxAvg = leftMaxAvg;
+    }
+    else
+    {
+        startIndex = rightStartIndex;
+        endIndex = rightEndIndex;
+        maxAvg = rightMaxAvg;
+    }
 }
-
-/*void divideAndConquer(vector<double> &sequence, int k, int left, int right, int &start, int &end, double &maxAvg)
-{
-    if (right - left + 1 < k)
-    {
-        return;
-    }
-
-    if (right - left + 1 == k)
-    {
-        double sum = 0;
-        for (int i = left; i <= right; i++)
-        {
-            sum += sequence.at(i);
-        }
-        double avg = sum / k;
-        if (avg > maxAvg)
-        {
-            maxAvg = avg;
-            start = left;
-            end = right;
-        }
-        return;
-    }
-    int mid = (left + right) / 2;
-    divideAndConquer(sequence, k, left, mid, start, end, maxAvg);
-    divideAndConquer(sequence, k, mid + 1, right, start, end, maxAvg);
-
-    double leftSum = 0;
-    double leftMaxAvg = 0;
-    for (int i = mid; i >= left; i--)
-    {
-        leftSum += sequence.at(i);
-        double avg = leftSum / (mid - i + 1);
-        if (avg > leftMaxAvg)
-        {
-            leftMaxAvg = avg;
-            start = i;
-        }
-    }
-
-    double rightSum = 0;
-    double rightMaxAvg = 0;
-    for (int i = mid + 1; i <= right; i++)
-    {
-        rightSum += sequence.at(i);
-        double avg = rightSum / (i - mid);
-        if (avg > rightMaxAvg)
-        {
-            rightMaxAvg = avg;
-            end = i;
-        }
-    }
-
-    if (leftMaxAvg + rightMaxAvg > maxAvg)
-    {
-        maxAvg = leftMaxAvg + rightMaxAvg;
-    }
-}*/
 
 int main(int argc, char *argv[])
 {
@@ -161,12 +147,14 @@ int main(int argc, char *argv[])
     if (isBruteForce)
     {
         startTime = clock();
-        bruteForce(sequence, k, 0, n, startIndex, endIndex, maxAvg);
+        bruteForce(sequence, k, 0, n - 1, startIndex, endIndex, maxAvg);
         endTime = clock();
     }
     else
     {
-        divideAndConquer(sequence, k, 0, n, startIndex, endIndex, maxAvg);
+        startTime = clock();
+        divideAndConquer(sequence, k, 0, n - 1, startIndex, endIndex, maxAvg);
+        endTime = clock();
     }
     cout << "k = " << k << ", n = " << n << endl;
     cout << "Indices: [" << startIndex << ", " << endIndex << "]" << endl;
