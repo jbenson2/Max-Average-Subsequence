@@ -30,7 +30,7 @@ void bruteForce(const vector<double> &seq, int k, int left, int right, int &star
 
 void divideAndConquer(vector<double> &seq, int k, int left, int right, int &startIndex, int &endIndex, double &maxAvg)
 {
-    int mid = 0;
+    int mid;
     int leftStartIndex = 0;
     int leftEndIndex = 0;
     int rightStartIndex = 0;
@@ -47,10 +47,6 @@ void divideAndConquer(vector<double> &seq, int k, int left, int right, int &star
     {
         return;
     }
-    if ((right - left) + 1 == k)
-    {
-        bruteForce(seq, k, left, right, startIndex, endIndex, maxAvg);
-    }
 
     mid = (right + left) / 2;
 
@@ -59,38 +55,24 @@ void divideAndConquer(vector<double> &seq, int k, int left, int right, int &star
 
     crossStartIndex = mid;
     crossEndIndex = mid + k - 1;
-    for (int i = mid; i >= left && i + k - 1 <= right; i--)
-    {
-        sum = 0;
-        for (int j = i; j <= i + k - 1; j++)
-        {
-            sum += seq[j];
-        }
-        avg = sum / k;
-        if (avg > crossMaxAvg)
-        {
-            crossMaxAvg = avg;
-            crossStartIndex = i;
-            crossEndIndex = i + k - 1;
-        }
-    }
-    if (crossMaxAvg > leftMaxAvg && crossMaxAvg > rightMaxAvg)
+
+    bruteForce(seq,k,mid,mid+(k+k)-2,crossStartIndex,crossEndIndex,crossMaxAvg);
+
+    maxAvg = max(max(leftMaxAvg,rightMaxAvg),crossMaxAvg);
+    if (maxAvg == crossMaxAvg)
     {
         startIndex = crossStartIndex;
         endIndex = crossEndIndex;
-        maxAvg = crossMaxAvg;
     }
-    else if (leftMaxAvg > rightMaxAvg)
+    else if (maxAvg == leftMaxAvg)
     {
         startIndex = leftStartIndex;
         endIndex = leftEndIndex;
-        maxAvg = leftMaxAvg;
     }
     else
     {
         startIndex = rightStartIndex;
         endIndex = rightEndIndex;
-        maxAvg = rightMaxAvg;
     }
 }
 
