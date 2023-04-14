@@ -90,6 +90,7 @@ int main(int argc, char *argv[])
     clock_t startTime;
     clock_t endTime;
 
+    //Error checking to see if correct amount of commands are passed
     if (argc != 4)
     {
         cout << "Missing commands: " << argv[0] << " <inputFileName> <k> <-b|-d>" << endl;
