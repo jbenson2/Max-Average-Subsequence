@@ -50,14 +50,17 @@ void divideAndConquer(vector<double> &seq, int k, int left, int right, int &star
 
     mid = (right + left) / 2;
 
+    //Split the sequence into left and right to calculate
     divideAndConquer(seq, k, left, mid, leftStartIndex, leftEndIndex, leftMaxAvg);
     divideAndConquer(seq, k, mid + 1, right, rightStartIndex, rightEndIndex, rightMaxAvg);
 
     crossStartIndex = mid;
     crossEndIndex = mid + k - 1;
 
+    //Find the Max Avg that crosses the middle
     bruteForce(seq,k,mid,mid+(k+k)-2,crossStartIndex,crossEndIndex,crossMaxAvg);
 
+    //Assign the correct values to maxAvg, startIndex and endIndex
     maxAvg = max(max(leftMaxAvg,rightMaxAvg),crossMaxAvg);
     if (maxAvg == crossMaxAvg)
     {
